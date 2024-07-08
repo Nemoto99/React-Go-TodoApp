@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    tty: true
+    volumes:
+      - ./frontend:/home/frontend
+    command: sh -c "npm run start"
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    tty: true
+    volumes:
+      - ./backend:/go/src/app
+    ports:
+      - '8080:8080'
+    depends_on:
+      - database
+
+  database:
+    container_name: database
+    image: mysql:8.0
+    volumes:
+      - ./database/my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_DATABASE: main
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
+      MYSQL_ROOT_PASSWORD: root
+      TZ: 'Asia/Tokyo'
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-u', 'root']
+      interval: 6s
+      timeout: 1s
+      retries: 5
+    platform: linux/amd64
