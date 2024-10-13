@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   frontend:
     container_name: frontend
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/frontend.Dockerfile
     tty: true
     volumes:
       - ./frontend:/home/frontend
@@ -18,15 +16,16 @@ services:
   backend:
     container_name: backend
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/backend.Dockerfile
     tty: true
     volumes:
       - ./backend:/go/src/app
     ports:
       - '8080:8080'
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   database:
     container_name: database
